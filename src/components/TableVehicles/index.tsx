@@ -13,6 +13,7 @@ import { ModalUpdateVehicle } from "../ModalUpdateVehicles";
 
 export interface VehicleProps {
   id: string;
+  vehicleId: string;
   model: string;
   plate: string;
   type: string;
@@ -42,7 +43,8 @@ useEffect(() => {
                 plate: doc.data().plate,
                 type: doc.data().type,
                 status: doc.data().status,
-                notes: doc.data().notes
+                notes: doc.data().notes,
+                vehicleId: doc.data().vehicleId
 
             })
         })
@@ -82,6 +84,22 @@ const filterVehicles = vehiclesList.filter((item) => {
 function openUpdateModal(register: VehicleProps){
     changeUpdateVehicleModal(register)
     setOpenModalUpdateVehicle(true)
+}
+function disableDeleteButton(){
+            toast.error(
+            <div>
+                <h2 className="text-black font-bold text-sm">Erro</h2>
+                <p className="text-gray-400 text-sm">Esse veículo não pode ser excluído pois está em rota.</p>
+            </div>
+        )
+}
+function disableEditButton(){
+            toast.error(
+            <div>
+                <h2 className="text-black font-bold text-sm">Erro</h2>
+                <p className="text-gray-400 text-sm">Esse veículo não pode ser editado pois está em rota.</p>
+            </div>
+        )
 }
     return(
         <div>
@@ -123,17 +141,28 @@ function openUpdateModal(register: VehicleProps){
                         </td>
                         <td className="pb-7.5 pt-7 pl-7.5 border-b border-[#2b2b2b25]">
                             <div className="flex items-center justify-end gap-3">
+                                {item.status === "in_route" ?
+                                <button className="hover:scale-105 transition cursor-pointer bg-[#36e26c] p-2 rounded-2xl duration-300 ease-in-out" onClick={() => disableEditButton()}>
+                                    <RxPencil1 className="text-white text-bold cursor-pointer"/>
+                                </button> :
                                 <button className="hover:scale-105 transition cursor-pointer bg-[#36e26c] p-2 rounded-2xl duration-300 ease-in-out" onClick={() => openUpdateModal(item)}>
                                     <RxPencil1 className="text-white text-bold cursor-pointer"/>
                                 </button>
+                                }
+                                {item.status === "in_route" ? 
+                                <button className="hover:scale-105 duration-300 ease-in-out cursor-pointer bg-red-600 hover: p-2 rounded-2xl" onClick={() => disableDeleteButton()}>
+                                    <FaRegTrashAlt className="text-white text-bold duration-300 ease-in-out" />
+                                </button> : 
                                 <button className="hover:scale-105 duration-300 ease-in-out cursor-pointer bg-red-600 hover: p-2 rounded-2xl" onClick={() => deleteVehicle(item.id)}>
                                     <FaRegTrashAlt className="text-white text-bold duration-300 ease-in-out" />
                                 </button>
+                                }
                             </div>
                         </td>
                     </tr>
                     ))}
                     </tbody>
+                    {filterVehicles.length === 0 && (<tr><td colSpan={10} className="p-5 text-center text-gray-400 text-sm">Nenhum veículo cadastrado.</td></tr>)}
                     </table>
                 </div>
             </div>
