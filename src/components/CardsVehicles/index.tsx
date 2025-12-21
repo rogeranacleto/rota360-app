@@ -1,8 +1,10 @@
 import { TbTruckOff } from "react-icons/tb";
 import { TbTruck } from "react-icons/tb";
 import { TbTruckDelivery } from "react-icons/tb";
-
+import { CardVehicleContext } from "../../contexts/CardVehicleContext";
+import { useContext } from "react";
 export function CardsVehicles() {
+const {available, inRoute, unavailable, total} = useContext(CardVehicleContext);
   return (
     <div className="w-full">
       <div className="flex gap-7 flex-wrap">
@@ -12,7 +14,7 @@ export function CardsVehicles() {
               Total de veículos
             </h1>
             <p className="text-black font-bold text-3xl mb-3.5">
-              15
+              {total}
             </p>
             <p className="text-sm text-[#8a8787]">
               Dados atualizados em tempo real
@@ -29,7 +31,7 @@ export function CardsVehicles() {
               Veículos disponíveis
             </h1>
             <p className="text-black font-bold text-3xl mb-3.5">
-              15
+              {available}
             </p>
             <p className="text-sm text-[#8a8787]">
               Dados atualizados em tempo real
@@ -46,7 +48,7 @@ export function CardsVehicles() {
               Veículos em rota
             </h1>
             <p className="text-black font-bold text-3xl mb-3.5">
-              15
+              {inRoute}
             </p>
             <p className="text-sm text-[#8a8787]">
               Dados atualizados em tempo real
@@ -62,7 +64,7 @@ export function CardsVehicles() {
               Veículos indisponíveis
             </h1>
             <p className="text-black font-bold text-3xl mb-3.5">
-              15
+              {unavailable}
             </p>
             <p className="text-sm text-[#8a8787]">
               Dados atualizados em tempo real
