@@ -3,16 +3,19 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { HiPlus } from "react-icons/hi";
 import { AnimatePresence } from "motion/react";
 import { useState, useEffect, useContext } from "react";
-import { onSnapshot, collection, deleteDoc, doc } from "firebase/firestore";
+import { onSnapshot, collection, deleteDoc, doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../services/firebaseConnection";
 import toast from "react-hot-toast";
 import { BiSearchAlt2 } from "react-icons/bi";
 import { ModalTrip } from "../ModalTrips";
 import { ModalUpdateTrip } from "../ModalUpdateTrips";
 import { TripUpdateContext } from "../../contexts/TripUpdateContext";
+import { CardTripContext } from "../../contexts/CardTripContext";
+
 export interface TripProps{
     id: string;
     model: string;
+    vehicleId: string;
     plate: string;
     driver: string;
     origin: string;
@@ -29,6 +32,7 @@ export function formatDate(date: string){
 }
 
 export function TableTrips(){
+const { setTotalTrips, setInRouteTrips, setCompletedTrips } = useContext(CardTripContext);
 const {changeUpdateTripModal} = useContext(TripUpdateContext);
 const [search, setSearch] = useState("");
 const [tripRecord, setTripRecord] = useState<TripProps[]>([]);
@@ -44,49 +48,74 @@ function changeUpdateModal(register: TripProps){
 }
 
 useEffect(() => {
-    async function loadReacords(){
-        onSnapshot(collection(db, "trips"),(snapshot) => {
-        let listRecords: TripProps[] = [];
-        snapshot.forEach((doc) => {
-            listRecords.push({
-                id: doc.id,
-                model: doc.data().model,
-                plate: doc.data().plate,
-                driver: doc.data().driver,
-                origin: doc.data().origin,
-                departureDate: doc.data().departureDate,
-                destination: doc.data().destination,
-                returnDate: doc.data().returnDate,
-                status: doc.data().status,
-                notes: doc.data().notes
+  const unsubscribe = onSnapshot(collection(db, "trips"), (snapshot) => {
+    let list: TripProps[] = [];
+    let total = 0;
+    let inRoute = 0;
+    let completed = 0;
 
-            })
-        })
-        setTripRecord(listRecords)
-    })
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      list.push({
+        id: doc.id,
+        model: data.model,
+        plate: data.plate,
+        driver: data.driver,
+        origin: data.origin,
+        departureDate: data.departureDate,
+        destination: data.destination,
+        returnDate: data.returnDate,
+        status: data.status,
+        notes: data.notes,
+        vehicleId: data.vehicleId,
+      });
+
+      total++;
+
+      if (data.status === "in_route") inRoute++;
+      if (data.status === "completed") completed++;
+    });
+
+    setTripRecord(list);
+    setTotalTrips(total);
+    setInRouteTrips(inRoute);
+    setCompletedTrips(completed);
+  });
+
+  return () => unsubscribe();
+}, []);
+
+
+async function deleteTrip(trip: TripProps) {
+  try {
+    if (trip.vehicleId) {
+      await updateDoc(doc(db, "vehicles", trip.vehicleId), {
+        status: "available",
+      });
     }
-    loadReacords()
-},[])
 
-async function deleteTrip(id: string){
-    const docRef = doc(db, "trips", id)
-    await deleteDoc(docRef)
-    .then(() => {
-        toast.success(
-            <div>
-                <h2 className="text-black font-bold text-sm">Registro Deletado</h2>
-                <p className="text-gray-400 text-sm">Registro de viagem deletado com sucesso.</p>
-            </div>
-        )
-    })
-    .catch(() => {
-        toast.error(
-            <div>
-                <h2 className="text-black font-bold text-sm">Erro</h2>
-                <p className="text-gray-400 text-sm">Ocorreu um erro inesperado, acione o suporte!</p>
-            </div>
-        )
-    })
+    await deleteDoc(doc(db, "trips", trip.id));
+
+    toast.success(
+      <div>
+        <h2 className="text-black font-bold text-sm">Registro Deletado</h2>
+        <p className="text-gray-400 text-sm">
+          Viagem excluída com sucesso.
+        </p>
+      </div>
+    );
+  } catch (error) {
+    toast.error(
+      <div>
+        <h2 className="text-black font-bold text-sm">Erro</h2>
+        <p className="text-gray-400 text-sm">
+          Erro ao excluir viagem.
+        </p>
+      </div>
+    );
+    console.error(error);
+  }
 }
 
 const filterTrips = tripRecord.filter((item) => {
@@ -94,6 +123,65 @@ const filterTrips = tripRecord.filter((item) => {
     const normalizedSearch = search.toLowerCase();
     return fullText.includes(normalizedSearch);
 });
+
+async function changeTripStatus(tripId: string) {
+  try {
+    const tripRef = doc(db, "trips", tripId);
+    const tripSnap = await getDoc(tripRef);
+
+    if (!tripSnap.exists()) {
+      toast.error(
+        <div>
+          <h2 className="text-black font-bold text-sm">Erro</h2>
+          <p className="text-gray-400 text-sm">
+            viagem não encontrada
+          </p>
+        </div>
+      );
+      return;
+    }
+
+    const tripData = tripSnap.data();
+    const vehicleId = tripData.vehicleId;
+
+    await updateDoc(tripRef, {
+      status: "completed",
+    });
+
+    if (vehicleId) {
+      await updateDoc(doc(db, "vehicles", vehicleId), {
+        status: "available",
+      });
+    }
+    
+    toast.success(
+      <div>
+        <h2 className="text-black font-bold text-sm">Viagem concluída</h2>
+        <p className="text-gray-400 text-sm">
+          A viagem foi concluida com sucesso.
+        </p>
+      </div>
+    );
+  } catch (error) {
+    toast.error(
+      <div>
+        <h2 className="text-black font-bold text-sm">Erro</h2>
+        <p className="text-gray-400 text-sm">
+          Não foi possível concluir a viagem.
+        </p>
+      </div>
+    );
+  }
+}
+
+function tripCompleted(){
+    toast.error(
+      <div>
+        <h2 className="text-black font-bold text-sm">Erro</h2>
+        <p className="text-gray-400 text-sm">Não é possível atualizar uma viagem concluída.</p>
+      </div>
+    );
+}
 
     return(
         <div>
@@ -137,14 +225,29 @@ const filterTrips = tripRecord.filter((item) => {
                             <td className="pb-7.5 pt-7 pl-7.5 font-medium border-b border-[#2b2b2b25]">{item.destination}</td>
                             <td className="pb-7.5 pt-7 pl-7.5 font-medium border-b border-[#2b2b2b25]">{formatDate(item.returnDate)}</td>
                             <td className="pb-7.5 pt-7 pl-7.5 border-b border-[#2b2b2b25]">
-                            {item.status === "in_route" && <span className="text-white bg-[#e9e511] pl-3 pr-3 pt-2 pb-2 rounded-2xl font-bold">Em rota</span>}
+                            <button onClick={() => changeTripStatus(item.id)} className="cursor-pointer" disabled={item.status === "completed"}>
+                            {item.status === "in_route" ? (
+                                <span className="text-white bg-[#e9e511] pl-3 pr-3 pt-2 pb-2 rounded-2xl font-bold">
+                                    Em rota
+                                </span>
+                            ) : (
+                                <span className="text-white bg-[#02e929] pl-3 pr-3 pt-2 pb-2 rounded-2xl font-bold">
+                                    Concluído
+                                </span>
+                            )}
+                            </button>
                             </td>
                             <td className="pb-7.5 pt-7 pl-7.5 border-b border-[#2b2b2b25]">
                                 <div className="flex items-center justify-end gap-3">
+                                    {item.status === "completed" ? 
+                                    <button className="hover:scale-105 transition cursor-pointer bg-[#36e26c] p-2 rounded-2xl duration-300 ease-in-out" onClick={() => tripCompleted()}>
+                                        <RxPencil1 className="text-white text-bold cursor-pointer"/>
+                                    </button> :
                                     <button className="hover:scale-105 transition cursor-pointer bg-[#36e26c] p-2 rounded-2xl duration-300 ease-in-out" onClick={() => changeUpdateModal(item)}>
                                         <RxPencil1 className="text-white text-bold cursor-pointer"/>
                                     </button>
-                                    <button className="hover:scale-105 duration-300 ease-in-out cursor-pointer bg-red-600 hover: p-2 rounded-2xl" onClick={() => deleteTrip(item.id)}>
+                                    }
+                                    <button className="hover:scale-105 duration-300 ease-in-out cursor-pointer bg-red-600 hover: p-2 rounded-2xl" onClick={() => deleteTrip(item)}>
                                         <FaRegTrashAlt className="text-white text-bold duration-300 ease-in-out"/>
                                     </button>
                                 </div>
@@ -152,6 +255,7 @@ const filterTrips = tripRecord.filter((item) => {
                         </tr>
                         ))}
                         </tbody>
+                        {filterTrips.length === 0 && (<tr><td colSpan={10} className="p-5 text-center text-gray-400 text-sm">Nenhum registro de viagem na tabela.</td></tr>)}
                     </table>
                 </div>
             </div>
