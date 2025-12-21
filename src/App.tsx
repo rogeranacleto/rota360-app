@@ -8,43 +8,48 @@ import { Dashboard } from "./pages/Admin/Dashboard/indes";
 import { History } from "./pages/Admin/History";
 import { Trips } from "./pages/Admin/Trips";
 import { Vehicles } from "./pages/Admin/Vehicles";
+import { Notfound } from "./pages/Notfound";
 export const router = createBrowserRouter([
   {
-   element: <Home/>,
-   path: "/"
+    element: <Home />,
+    path: "/",
   },
   {
-    element: <Signup/>,
-    path: "/signup"
+    element: <Signup />,
+    path: "/signup",
   },
   {
-    element: <Login/>,
-    path: "/login"
+    element: <Login />,
+    path: "/login",
   },
-    {
-    element: <PrivateRoute/>,
-    children:[
+  {
+    element: <PrivateRoute />,
+    children: [
       {
-        element: <Layout/>,
-        children:[
+        element: <Layout />,
+        children: [
           {
-            element: <Dashboard/>,
-            path:"admin/dashboard"
+            element: <Dashboard />,
+            path: "admin/dashboard",
           },
           {
-            element: <History/>,
-            path: "admin/history"
+            element: <History />,
+            path: "admin/history",
           },
           {
-            element: <Trips/>,
-            path:"admin/trips"
+            element: <Trips />,
+            path: "admin/trips",
           },
           {
-            element: <Vehicles/>,
-            path:"admin/vehicles"
-          }
-        ]
-      }
-    ]
+            element: <Vehicles />,
+            path: "admin/vehicles",
+          },
+        ],
+      },
+    ],
   },
-])
+  {
+    element: <Notfound/>,
+    path: "*"
+  },
+]);
