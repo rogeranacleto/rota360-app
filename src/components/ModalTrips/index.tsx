@@ -9,7 +9,7 @@ interface TripModalProps {
   onClose: (changed: boolean) => void;
 }
 
-interface VehicleInTrip {
+export interface VehicleInTrip {
   id: string;
   model: string;
   plate: string;
