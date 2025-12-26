@@ -42,7 +42,7 @@ export function Home(){
                     src={bgRota360}
                     alt="Imagem do Sistema"
                     data-aos="fade-up" data-aos-duration="2100"
-                    className="hidden lg:block max-w-5xl w-full rounded-2xl absolute left-1/2 -translate-x-1/2 top-[55.5%] text-shadow-2xl"
+                    className="hidden lg:block max-w-5xl w-full rounded-2xl absolute left-1/2 -translate-x-1/2 top-[43rem] text-shadow-2xl"
                     id="platform"
                     />
                 </div>
