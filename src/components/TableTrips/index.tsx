@@ -199,7 +199,7 @@ function tripCompleted(){
                 <BiSearchAlt2 className="text-[#2b2b2b9d] text-3xl absolute right-4 top-1.5"/>
             </div>
             <div className="overflow-x-auto w-full border border-solid border-[#ffffff4b] bg-white mt-4 rounded-lg shadow-2xl">
-                <div className="p-7.5">
+                <div className="pt-3">
                     <table className="w-full min-w-max text-left border-separate border-spacing-y-3">
                         <thead>
                             <tr className="text-gray-400 text-sm">
@@ -237,7 +237,7 @@ function tripCompleted(){
                             )}
                             </button>
                             </td>
-                            <td className="pb-7.5 pt-7 pl-7.5 border-b border-[#2b2b2b25]">
+                            <td className="pb-7.5 pt-7 pr-7.5 border-b border-[#2b2b2b25]">
                                 <div className="flex items-center justify-end gap-3">
                                     {item.status === "completed" ? 
                                     <button className="hover:scale-105 transition cursor-pointer bg-[#36e26c] p-2 rounded-2xl duration-300 ease-in-out" onClick={() => tripCompleted()}>
