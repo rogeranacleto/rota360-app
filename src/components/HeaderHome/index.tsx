@@ -8,7 +8,7 @@ function scrollToSection(id: string){
 }    
     return(
         <div className="hidden max-w-6xl w-full lg:block md:block">
-            <div className="bg-[#36e26d] rounded-lg mt-8 min-h-17 flex justify-between items-center pl-7 pr-7">
+            <div className="bg-white rounded-lg mt-8 min-h-17 flex justify-between items-center pl-7 pr-7">
                 <Link to={"/"} className="flex items-center gap-3">
                     <FaTruck className="text-black text-2xl"/>
                     <h1 className="font-bold text-lg text-black">Rota360</h1>
