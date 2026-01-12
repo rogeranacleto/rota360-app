@@ -86,7 +86,7 @@ export function Home(){
                     Falta de Visibilidade
                   </p>
                   <p className="mt-5 text-gray-400">
-                    Gestores não tem um certo controle de quantos veículos estão
+                    Falta de controle de quantos veículos estão
                     disponíveis, em rota ou parados.
                   </p>
                 </div>
