@@ -12,7 +12,7 @@ export function FooterHome(){
                 </Link>
             </div>
             <div className="absolute bottom-2 flex items-center flex-col" data-aos="fade-right" data-aos-duration="2500">
-                <p className="text-white font-bold text-center">Desenvolvido por Roger Anacleto • © 2025 Todos os direitos reservados.</p>
+                <p className="text-white font-bold text-center text-sm">Desenvolvido por Roger Anacleto • © 2025 Todos os direitos reservados.</p>
                 <div className="flex items-center gap-3 mt-2">
                     <a href="https://github.com/rogeranacleto" className="hover:scale-110 duration-300 ease-in-out" target="_blank">
                         <FiGithub className="text-white text-lg"/>
